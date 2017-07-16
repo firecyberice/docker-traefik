@@ -17,12 +17,12 @@ function multiarch(){
 echo "=> push multiarch"
 echo "${DOCKER_REPO}:${VERSION}"
 
-ARCH="linux/arm,linux/amd64"
+ARCHS="linux/arm,linux/amd64"
 ./manifest-tool push from-args \
---platforms ${ARCH} \
+--platforms ${ARCHS} \
 --template ${DOCKER_REPO}:${VERSION}-ARCH \
 --target ${DOCKER_REPO}:${VERSION}
-}
+v}
 
 function info(){
 local folder="${1}"
@@ -61,6 +61,11 @@ do
 done
 
 docker image ls
+
 latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
-VERSION=${latest}
-multiarch
+
+ARCHS="linux/arm,linux/amd64"
+./manifest-tool push from-args \
+--platforms ${ARCHS} \
+--template ${DOCKER_REPO}:${latest}-ARCH \
+--target ${DOCKER_REPO}:latest
