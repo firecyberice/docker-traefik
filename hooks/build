@@ -1,0 +1,69 @@
+#!/bin/bash
+echo "### Run advanced ###"
+
+function qemu(){
+  echo "=> enable quemu"
+  docker run --rm --privileged multiarch/qemu-user-static:register --reset
+}
+
+function manifest(){
+  echo "=> install manifest-tool"
+  local URL=https://github.com/estesp/manifest-tool/releases/download/v0.6.0/manifest-tool-linux-amd64
+  curl -sLo ./manifest-tool ${URL}
+  chmod +x ./manifest-tool
+}
+
+function multiarch(){
+echo "=> push multiarch"
+ARCH="linux/arm,linux/amd64"
+./manifest-tool push from-args \
+--platforms ${ARCH} \
+--template ${DOCKER_REPO}:${VERSION}-ARCH \
+--target ${DOCKER_REPO}:${VERSION}
+}
+
+function info(){
+echo "=> get metainfo"
+ARCH=$(basename $(pwd))
+VERSION=$(basename $(dirname $(pwd)))
+
+echo arch=${ARCH}
+echo version=${VERSION}
+
+}
+
+function info2(){
+local folder="${1}"
+ARCH=$(basename "${folder}")
+VERSION=$(basename $(dirname "${folder}"))
+
+echo arch=${ARCH}
+echo version=${VERSION}
+}
+
+for df in $(find . -type f -name 'Dockerfile*');
+do
+  df_path=$(dirname ${df})
+  info2 "${df_path}"
+  echo "Building ${df_path}"
+  
+  if [[ "$ARCH" == "arm" ]]; then
+    echo "Load qemu for arm"
+    qemu
+  fi
+
+  URL=https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}
+  curl -sLo ./traefik ${URL}
+  chmod +x ./traefik#!/bin/bash
+  docker image build -t ${DOCKER_REPO}:${VERSION}-${ARCH} -f "${df}" "${df_path}"
+done
+
+for versions in *; do
+  if [[ "${versions}" != "hooks" ]]; then
+    if [[ $(ls -1 ${versions} | wc -l) -gt 1 ]]; then
+      echo "Get manifest-tool"
+      manifest
+      multiarch  
+    fi 
+  fi
+done
