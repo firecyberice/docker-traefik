@@ -53,8 +53,8 @@ do
   fi
 
   URL=https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}
-  curl -sLo ./traefik ${URL}
-  chmod +x ./traefik#!/bin/bash
+  curl -sLo ${df_path}/traefik ${URL}
+  chmod +x ${df_path}/traefik
   docker image build -t ${DOCKER_REPO}:${VERSION}-${ARCH} -f "${df}" "${df_path}"
 done
 
