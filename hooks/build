@@ -50,12 +50,13 @@ do
   docker image build -t ${DOCKER_REPO}:${VERSION}-${ARCH} -f "${df}" "${df_path}"
 done
 
-for versions in $(ls -1d */ |sort -d -r); do
-  if [[ "${versions}" != "hooks" ]]; then
-    if [[ $(ls -1 ${versions} | wc -l) -gt 1 ]]; then
-      multiarch  
-    fi 
-  fi
+for df in $(find . -type f -name 'Dockerfile*');
+do
+  df_path=$(dirname ${df})
+  info "${df_path}"
+  if [[ $(ls -1 ${VERSION} | wc -l) -gt 1 ]]; then
+    multiarch  
+  fi 
 done
 
 docker image ls
