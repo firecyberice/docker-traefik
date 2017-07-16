@@ -48,6 +48,7 @@ do
   
   echo "Building ${DOCKER_REPO}:${VERSION}-${ARCH}"
   docker image build -t ${DOCKER_REPO}:${VERSION}-${ARCH} -f "${df}" "${df_path}"
+  docker image push ${DOCKER_REPO}:${VERSION}-${ARCH}
 done
 
 for df in $(find . -type f -name 'Dockerfile*');
