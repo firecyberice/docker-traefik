@@ -23,16 +23,6 @@ ARCH="linux/arm,linux/amd64"
 }
 
 function info(){
-echo "=> get metainfo"
-ARCH=$(basename $(pwd))
-VERSION=$(basename $(dirname $(pwd)))
-
-echo arch=${ARCH}
-echo version=${VERSION}
-
-}
-
-function info2(){
 local folder="${1}"
 ARCH=$(basename "${folder}")
 VERSION=$(basename $(dirname "${folder}"))
@@ -41,29 +31,30 @@ echo arch=${ARCH}
 echo version=${VERSION}
 }
 
+qemu
+manifest
+
 for df in $(find . -type f -name 'Dockerfile*');
 do
   df_path=$(dirname ${df})
-  info2 "${df_path}"
+  info "${df_path}"
   echo "Building ${df_path}"
   
-  if [[ "$ARCH" == "arm" ]]; then
-    echo "Load qemu for arm"
-    qemu
-  fi
-
   URL=https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}
   curl -sLo ${df_path}/traefik ${URL}
   chmod +x ${df_path}/traefik
+
   docker image build -t ${DOCKER_REPO}:${VERSION}-${ARCH} -f "${df}" "${df_path}"
 done
 
-for versions in *; do
+for versions in $(ls -1d */ |sort -d -r); do
   if [[ "${versions}" != "hooks" ]]; then
     if [[ $(ls -1 ${versions} | wc -l) -gt 1 ]]; then
-      echo "Get manifest-tool"
-      manifest
       multiarch  
     fi 
   fi
 done
+
+
+latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
+docker tag  ${DOCKER_REPO}:${latest} ${DOCKER_REPO}:latest
