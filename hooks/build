@@ -15,6 +15,8 @@ function manifest(){
 
 function multiarch(){
 echo "=> push multiarch"
+echo "${DOCKER_REPO}:${VERSION}"
+
 ARCH="linux/arm,linux/amd64"
 ./manifest-tool push from-args \
 --platforms ${ARCH} \
@@ -27,8 +29,8 @@ local folder="${1}"
 ARCH=$(basename "${folder}")
 VERSION=$(basename $(dirname "${folder}"))
 
-echo arch=${ARCH}
-echo version=${VERSION}
+#echo arch=${ARCH}
+#echo version=${VERSION}
 }
 
 qemu
@@ -38,12 +40,13 @@ for df in $(find . -type f -name 'Dockerfile*');
 do
   df_path=$(dirname ${df})
   info "${df_path}"
-  echo "Building ${df_path}"
+#  echo "Building ${df_path}"
   
   URL=https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}
   curl -sLo ${df_path}/traefik ${URL}
   chmod +x ${df_path}/traefik
-
+  
+  echo "Building ${DOCKER_REPO}:${VERSION}-${ARCH}"
   docker image build -t ${DOCKER_REPO}:${VERSION}-${ARCH} -f "${df}" "${df_path}"
 done
 
