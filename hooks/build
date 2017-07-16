@@ -66,4 +66,8 @@ latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
 
 ARCHS="linux/arm,linux/amd64"
 
-./manifest-tool push from-args --platforms ${ARCHS} --template ${DOCKER_REPO}:${latest}-ARCH --target ${DOCKER_REPO}:latest
+./manifest-tool push from-args \
+--platforms ${ARCHS} \
+--template ${DOCKER_REPO}:${latest}-ARCH \
+--target ${DOCKER_REPO}:latest \
+|| true
