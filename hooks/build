@@ -58,6 +58,6 @@ for versions in $(ls -1d */ |sort -d -r); do
   fi
 done
 
-
+docker image ls
 latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
 docker tag  ${DOCKER_REPO}:${latest} ${DOCKER_REPO}:latest
