@@ -62,5 +62,5 @@ done
 
 docker image ls
 latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
-docker image pull ${DOCKER_REPO}:${latest}
-docker tag  ${DOCKER_REPO}:${latest} ${DOCKER_REPO}:latest
+VERSION=${latest}
+multiarch
