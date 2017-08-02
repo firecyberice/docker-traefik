@@ -23,7 +23,7 @@ cmd="./manifest-tool push from-args \
 --template ${DOCKER_REPO}:${VERSION}-ARCH \
 --target ${DOCKER_REPO}:${VERSION}"
 
-echo ${cmd}
+#echo ${cmd}
 eval ${cmd}
 
 }
@@ -85,5 +85,5 @@ push from-args \
 --template ${DOCKER_REPO}:${latest}-ARCH \
 --target ${DOCKER_REPO}:latest"
 
-echo ${cmd}
+#echo ${cmd}
 eval ${cmd}
