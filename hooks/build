@@ -72,10 +72,6 @@ do
   fi
 done
 
-echo "=> get system info"
-docker version
-docker image ls
-
 latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
 echo "=> Build latest version: ${latest}"
 

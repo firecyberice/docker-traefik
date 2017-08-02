@@ -1,0 +1,9 @@
+#!/bin/bash
+set +e -x
+
+echo "=> get system info"
+uname -a
+docker version
+docker image ls
+
+exit 0
