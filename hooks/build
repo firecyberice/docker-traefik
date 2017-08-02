@@ -64,11 +64,16 @@ latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
 
 docker image ls
 echo "Latest Version: ${latest}"
-ls -l
 
 ARCHS="linux/arm,linux/amd64"
 
-cmd="./manifest-tool --docker-cfg '/root/.docker' \
+whoami
+pwd
+echo $HOME
+
+DOCKERPATH="${HOME}/.docker"
+
+cmd="./manifest-tool --docker-cfg \"${DOCKERPATH}\" \
 push from-args \
 --platforms ${ARCHS} \
 --template ${DOCKER_REPO}:${latest}-ARCH \
