@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e +x
+
 echo "### Run advanced ###"
 
 function qemu(){
@@ -14,8 +16,7 @@ function manifest(){
 }
 
 function multiarch(){
-echo "=> push multiarch"
-echo "${DOCKER_REPO}:${VERSION}"
+echo "=> push multiarch ${DOCKER_REPO}:${VERSION}"
 
 cmd="./manifest-tool push from-args \
 --platforms ${ARCHS} \
@@ -32,8 +33,7 @@ local folder="${1}"
 ARCH=$(basename "${folder}")
 VERSION=$(basename $(dirname "${folder}"))
 
-#echo arch=${ARCH}
-#echo version=${VERSION}
+echo "=> info arch=${ARCH} version=${VERSION}"
 }
 
 #################################
@@ -55,7 +55,7 @@ do
   curl -sLo ${df_path}/traefik ${URL}
   chmod +x ${df_path}/traefik
   
-  echo "Building ${DOCKER_REPO}:${VERSION}-${ARCH}"
+  echo "=> Building ${DOCKER_REPO}:${VERSION}-${ARCH}"
   docker image build -t ${DOCKER_REPO}:${VERSION}-${ARCH} -f "${df}" "${df_path}"
   docker image push ${DOCKER_REPO}:${VERSION}-${ARCH}
 done
@@ -66,20 +66,26 @@ do
   if [[ "${df_path}" != "." ]]; then
     info "${df_path}"
     if [[ $(ls -1 ${VERSION} | wc -l) -gt 1 ]]; then
+      echo "=> Building multiarch for $(ls -1 ${VERSION})"
       multiarch  
     fi 
   fi
 done
 
-latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
-
+echo "=> get system info"
+docker version
 docker image ls
-echo "Latest Version: ${latest}"
+echo $HOME
+ls -lAh $HOME
+
+latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
+echo "=> Build latest version: ${latest}"
 
 cmd="./manifest-tool \
 push from-args \
 --platforms ${ARCHS} \
 --template ${DOCKER_REPO}:${latest}-ARCH \
---target ${DOCKER_REPO}:latest \
-|| true"
+--target ${DOCKER_REPO}:latest"
 
+echo ${cmd}
+eval ${cmd}
