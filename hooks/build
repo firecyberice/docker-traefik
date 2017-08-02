@@ -65,8 +65,8 @@ do
   df_path=$(dirname ${df})
   if [[ "${df_path}" != "." ]]; then
     info "${df_path}"
-    if [[ $(ls -1 ${VERSION} | wc -l) -gt 1 ]]; then
-      echo "=> Building multiarch for $(ls -1 ${VERSION})"
+    if [[ $(docker image ls --filter reference=${DOCKER_REPO}:${VERSION}* | grep -v CREATED | wc -l) -gt 1 ]]; then
+      echo "=> Building multiarch for ${VERSION}"
       multiarch  
     fi 
   fi
@@ -77,6 +77,7 @@ docker version
 docker image ls
 echo $HOME
 ls -lAh $HOME
+cat $HOME/.dockercfg
 
 latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
 echo "=> Build latest version: ${latest}"
