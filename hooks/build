@@ -17,11 +17,14 @@ function multiarch(){
 echo "=> push multiarch"
 echo "${DOCKER_REPO}:${VERSION}"
 
-ARCHS="linux/arm,linux/amd64"
-./manifest-tool push from-args \
+cmd="./manifest-tool push from-args \
 --platforms ${ARCHS} \
 --template ${DOCKER_REPO}:${VERSION}-ARCH \
---target ${DOCKER_REPO}:${VERSION}
+--target ${DOCKER_REPO}:${VERSION}"
+
+echo ${cmd}
+eval ${cmd}
+
 }
 
 function info(){
@@ -33,8 +36,14 @@ VERSION=$(basename $(dirname "${folder}"))
 #echo version=${VERSION}
 }
 
+#################################
+
 qemu
 manifest
+
+ARCHS="linux/arm,linux/amd64"
+
+
 
 for df in $(find . -type f -name 'Dockerfile*');
 do
@@ -54,10 +63,12 @@ done
 for df in $(find . -type f -name 'Dockerfile*');
 do
   df_path=$(dirname ${df})
-  info "${df_path}"
-  if [[ $(ls -1 ${VERSION} | wc -l) -gt 1 ]]; then
-    multiarch  
-  fi 
+  if [[ "${df_path}" != "." ]]; then
+    info "${df_path}"
+    if [[ $(ls -1 ${VERSION} | wc -l) -gt 1 ]]; then
+      multiarch  
+    fi 
+  fi
 done
 
 latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
@@ -65,20 +76,10 @@ latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
 docker image ls
 echo "Latest Version: ${latest}"
 
-ARCHS="linux/arm,linux/amd64"
-
-whoami
-pwd
-echo $HOME
-
-DOCKERPATH="${HOME}/.docker"
-
-cmd="./manifest-tool --docker-cfg \"${DOCKERPATH}\" \
+cmd="./manifest-tool \
 push from-args \
 --platforms ${ARCHS} \
 --template ${DOCKER_REPO}:${latest}-ARCH \
 --target ${DOCKER_REPO}:latest \
 || true"
 
-echo ${cmd}
-eval ${cmd}
