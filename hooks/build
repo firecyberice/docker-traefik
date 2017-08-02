@@ -50,7 +50,7 @@ do
   df_path=$(dirname ${df})
   if [[ "${df_path}" != "." ]]; then
     info "${df_path}"
-    local URL=https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}
+    URL=https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}
     curl -sLo ${df_path}/traefik ${URL}
     chmod +x ${df_path}/traefik
   
