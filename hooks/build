@@ -75,9 +75,6 @@ done
 echo "=> get system info"
 docker version
 docker image ls
-echo $HOME
-ls -lAh $HOME
-cat $HOME/.dockercfg
 
 latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
 echo "=> Build latest version: ${latest}"
