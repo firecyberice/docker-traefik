@@ -48,16 +48,16 @@ ARCHS="linux/arm,linux/amd64"
 for df in $(find . -type f -name 'Dockerfile*');
 do
   df_path=$(dirname ${df})
-  info "${df_path}"
-#  echo "Building ${df_path}"
+  if [[ "${df_path}" != "." ]]; then
+    info "${df_path}"
+    local URL=https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}
+    curl -sLo ${df_path}/traefik ${URL}
+    chmod +x ${df_path}/traefik
   
-  URL=https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}
-  curl -sLo ${df_path}/traefik ${URL}
-  chmod +x ${df_path}/traefik
-  
-  echo "=> Building ${DOCKER_REPO}:${VERSION}-${ARCH}"
-  docker image build -t ${DOCKER_REPO}:${VERSION}-${ARCH} -f "${df}" "${df_path}"
-  docker image push ${DOCKER_REPO}:${VERSION}-${ARCH}
+    echo "=> Building ${DOCKER_REPO}:${VERSION}-${ARCH}"
+    docker image build -t ${DOCKER_REPO}:${VERSION}-${ARCH} -f "${df}" "${df_path}"
+    docker image push ${DOCKER_REPO}:${VERSION}-${ARCH}
+  fi
 done
 
 for df in $(find . -type f -name 'Dockerfile*');
