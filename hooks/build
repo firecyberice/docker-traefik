@@ -60,14 +60,20 @@ do
   fi 
 done
 
-docker image ls
-
 latest="$(ls -1d */ |sort -d -r | grep -v hooks|  head -n 1 | cut -f1 -d'/')"
+
+docker image ls
+echo "Latest Version: ${latest}"
+ls -l
 
 ARCHS="linux/arm,linux/amd64"
 
-./manifest-tool push from-args \
+cmd="./manifest-tool --docker-cfg '/root/.docker' \
+push from-args \
 --platforms ${ARCHS} \
 --template ${DOCKER_REPO}:${latest}-ARCH \
 --target ${DOCKER_REPO}:latest \
-|| true
+|| true"
+
+echo ${cmd}
+eval ${cmd}
