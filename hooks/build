@@ -11,7 +11,7 @@ function qemu(){
 function manifest(){
   echo "=> install manifest-tool"
   local URL=https://github.com/estesp/manifest-tool/releases/download/v0.6.0/manifest-tool-linux-amd64
-  curl -sLo ./manifest-tool ${URL}
+  curl -sLo ./manifest-tool "${URL}"
   chmod +x ./manifest-tool
 }
 
@@ -28,10 +28,26 @@ eval ${cmd}
 
 }
 
+function get_qemu(){
+  local df_path="${1}"
+  echo "=> get qemu binary"
+  local URL="https://github.com/multiarch/qemu-user-static/releases/download/v2.9.1/qemu-arm-static.tar.gz"
+  curl -sL "${URL}" | tar -xzC "${df_path}"
+}
+
+function get_traefik(){
+  local df_path="${1}"
+  
+  echo "=> get traefik binary"
+  local URL="https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}"
+  curl -sLo "${df_path}/traefik" "${URL}"
+  chmod +x "${df_path}/traefik"
+}
+
 function info(){
 local folder="${1}"
 ARCH=$(basename "${folder}")
-VERSION=$(basename $(dirname "${folder}"))
+VERSION=$(basename "$(dirname "${folder}")")
 
 echo "=> info arch=${ARCH} version=${VERSION}"
 }
@@ -47,25 +63,26 @@ ARCHS="linux/arm,linux/amd64"
 
 for df in $(find . -type f -name 'Dockerfile*');
 do
-  df_path=$(dirname ${df})
+  df_path=$(dirname "${df}")
   if [[ "${df_path}" != "." ]]; then
     info "${df_path}"
-    URL=https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}
-    curl -sLo ${df_path}/traefik ${URL}
-    chmod +x ${df_path}/traefik
-  
+    get_traefik "${df_path}"
+    if [[ "$ARCH" == "arm" ]]; then
+      get_qemu "${df_path}"
+    fi
+    
     echo "=> Building ${DOCKER_REPO}:${VERSION}-${ARCH}"
-    docker image build -t ${DOCKER_REPO}:${VERSION}-${ARCH} -f "${df}" "${df_path}"
-    docker image push ${DOCKER_REPO}:${VERSION}-${ARCH}
+    docker image build -t "${DOCKER_REPO}:${VERSION}-${ARCH}" -f "${df}" "${df_path}"
+    docker image push "${DOCKER_REPO}:${VERSION}-${ARCH}"
   fi
 done
 
 for df in $(find . -type f -name 'Dockerfile*');
 do
-  df_path=$(dirname ${df})
+  df_path=$(dirname "${df}")
   if [[ "${df_path}" != "." ]]; then
     info "${df_path}"
-    if [[ $(docker image ls --filter reference=${DOCKER_REPO}:${VERSION}* | grep -v CREATED | wc -l) -gt 1 ]]; then
+    if [[ $(docker image ls --filter reference=${DOCKER_REPO}:${VERSION}* | grep -cv CREATED) -gt 1 ]]; then
       echo "=> Building multiarch for ${VERSION}"
       multiarch  
     fi 
