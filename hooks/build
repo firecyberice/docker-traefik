@@ -25,7 +25,6 @@ cmd="./manifest-tool push from-args \
 
 #echo ${cmd}
 eval ${cmd}
-
 }
 
 function get_qemu(){
@@ -37,7 +36,6 @@ function get_qemu(){
 
 function get_traefik(){
   local df_path="${1}"
-  
   echo "=> get traefik binary"
   local URL="https://github.com/containous/traefik/releases/download/v${VERSION}/traefik_linux-${ARCH}"
   curl -sLo "${df_path}/traefik" "${URL}"
@@ -48,7 +46,6 @@ function info(){
 local folder="${1}"
 ARCH=$(basename "${folder}")
 VERSION=$(basename "$(dirname "${folder}")")
-
 echo "=> info arch=${ARCH} version=${VERSION}"
 }
 
@@ -58,8 +55,6 @@ qemu
 manifest
 
 ARCHS="linux/arm,linux/amd64"
-
-
 
 for df in $(find . -type f -name 'Dockerfile*');
 do
